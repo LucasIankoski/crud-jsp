@@ -9,16 +9,22 @@
 <body>
 
 <form action="ServletLogin" method="post">
-	<tr>
-		<td>Nome: <input name="nome"></td>
-	</tr>	
-	<tr>
-		<td>Idade: <input name="idade"></td>
-	</tr>
-	<tr>	
-		<td><input type="submit"></td>
-	</tr>
+	<table>
+		<tr>
+			<td><label>Login</label></td>
+			<td><input name="login" type="text" required></td>
+		</tr>	
+		<tr>
+			<td><label>Senha</label></td>
+			<td><input name="senha" type="password" required></td>
+		</tr>
+		<tr>
+			<td></td>	
+			<td><input type="submit"></td>
+		</tr>
+	</table>	
 </form>
+<h4>${mensagemErroLogin}</h4>
 
 </body>
 </html>
