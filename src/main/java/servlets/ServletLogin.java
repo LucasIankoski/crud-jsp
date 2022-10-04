@@ -13,7 +13,7 @@ import model.ModelLogin;
 /**
  * Servlet implementation class ServletLogin
  */
-@WebServlet("/ServletLogin")
+@WebServlet(urlPatterns = {"/principal/ServletLogin", "/ServletLogin"})
 public class ServletLogin extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -31,6 +31,7 @@ public class ServletLogin extends HttpServlet {
 
 		String login = request.getParameter("login");
 		String senha = request.getParameter("senha");
+		String url = request.getParameter("url");
 
 		if (login != null && !login.isEmpty() && senha != null && !senha.isEmpty()) {
 			ModelLogin modelLogin = new ModelLogin();
@@ -39,10 +40,15 @@ public class ServletLogin extends HttpServlet {
 
 			if (modelLogin.getLogin().equalsIgnoreCase("admin") && modelLogin.getSenha().equalsIgnoreCase("admin")) {
 				request.getSession().setAttribute("usuario", modelLogin.getLogin());
-				RequestDispatcher redirecionamento = request.getRequestDispatcher("principal/home.jsp");
+				
+				if(url == null || url.equals("null")) {
+					url = "principal/home.jsp";
+				}
+				
+				RequestDispatcher redirecionamento = request.getRequestDispatcher(url);
 				redirecionamento.forward(request, response);
 			} else {
-				RequestDispatcher redirecionamento = request.getRequestDispatcher("index.jsp");
+				RequestDispatcher redirecionamento = request.getRequestDispatcher("/index.jsp");
 				request.setAttribute("mensagemErroLogin", "Login ou senha incorretos!");
 				redirecionamento.forward(request, response);
 			}
