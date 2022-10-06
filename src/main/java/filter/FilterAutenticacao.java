@@ -1,7 +1,10 @@
 package filter;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 
+import connection.DB;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -13,55 +16,58 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
-/**
- * Servlet Filter implementation class FilterAj
- */
 @WebFilter(urlPatterns = { "/principal/*" })
 public class FilterAutenticacao implements Filter {
 
-	/**
-	 * Default constructor.
-	 */
+	private static Connection connection;
+
 	public FilterAutenticacao() {
-		// TODO Auto-generated constructor stub
+
 	}
 
-	/**
-	 * @see Filter#destroy()
-	 */
 	public void destroy() {
-		// TODO Auto-generated method stub
+		try {
+			connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
-	/**
-	 * @see Filter#doFilter(ServletRequest, ServletResponse, FilterChain)
-	 */
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
+		try {
 
-		HttpServletRequest httpReq = (HttpServletRequest) request;
-		HttpSession httpSession = httpReq.getSession();
-		String usuarioLogado = (String) httpSession.getAttribute("usuario");
-		String urlParaAutenticacao = httpReq.getServletPath();
-		
-		System.out.println(urlParaAutenticacao);
+			HttpServletRequest httpReq = (HttpServletRequest) request;
+			HttpSession httpSession = httpReq.getSession();
+			String usuarioLogado = (String) httpSession.getAttribute("usuario");
+			String urlParaAutenticacao = httpReq.getServletPath();
 
-		if (usuarioLogado == null && !urlParaAutenticacao.equalsIgnoreCase("/principal/ServletLogin")) {
-			RequestDispatcher redirecionamento = request.getRequestDispatcher("/index.jsp?url=" + urlParaAutenticacao);
-			request.setAttribute("mensagemErroLogin", "Por favor, efetue o seu login");
-			redirecionamento.forward(request, response);
-			return;
-		} else {
-			chain.doFilter(request, response);
+			System.out.println(urlParaAutenticacao);
+
+			if (usuarioLogado == null && !urlParaAutenticacao.equalsIgnoreCase("/principal/ServletLogin")) {
+				RequestDispatcher redirecionamento = request
+						.getRequestDispatcher("/index.jsp?url=" + urlParaAutenticacao);
+				request.setAttribute("mensagemErroLogin", "Por favor, efetue o seu login");
+				redirecionamento.forward(request, response);
+				return;
+			} else {
+				chain.doFilter(request, response);
+			}
+
+			connection.commit();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
 		}
-
 	}
 
-	/**
-	 * @see Filter#init(FilterConfig)
-	 */
 	public void init(FilterConfig fConfig) throws ServletException {
-		// TODO Auto-generated method stub
+		connection = DB.getConnection();
 	}
 
 }
